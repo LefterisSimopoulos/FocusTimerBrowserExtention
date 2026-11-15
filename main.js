@@ -6,54 +6,71 @@ document.getElementById("btn60").addEventListener("click", ()=> setTimer(60));
 document.getElementById("start").addEventListener("click", ()=> startTimer());
 document.getElementById("stop").addEventListener("click", ()=> stopTimer());
 
-let minSelected = 15; //initialize the selected mins variable
+
+const timerState = {
+  interval: null,
+  minSelected: 15,
+  totalSeconds: 0,
+  initialOffset: 440,
+  secondsCounted: 0,
+  minutes: 15,
+  secsInMin: 0
+}
 let mins; //used for var in setTimer
-var interval = null; //tracks if timer is alr running
 
 function setTimer(mins){
-  if (interval !== null) {
+  if (timerState.interval !== null) {
     alert('Please stop or wait for the current timer to finish!');
     return;
   }
-  minSelected = mins;
+  timerState.minSelected = mins;
+  timerState.secondsCounted = 0;
   $('h2').text(mins + ':' + '00');
 }
 
 function startTimer(){
-  if (interval !== null) { //check if timer is alr running
+  if (timerState.interval !== null) { //check if timer is alr running
     alert('Timer is already running!');
     return;
   }
+  
+  if(timerState.secondsCounted === 0 || timerState.secondsCounted >= timerState.totalSeconds){
+    timerState.minutes = timerState.minSelected - 1; //minutes to use for ui
 
-  var minutes = minSelected - 1; //minutes to use for ui
-  var initialOffset = '440';
-  var i = 0;
-  let totalSeconds = minSelected * 60;
-  let secsInMin = 59;
+    timerState.totalSeconds = timerState.minSelected * 60;
+    timerState.secsInMin = 59;
+  }
 
-  $('.circle_animation').css('stroke-dashoffset', initialOffset-(1*initialOffset/totalSeconds));
-
-  interval = setInterval(function(){
-    if(secsInMin < 10){
-      $('h2').text(minutes + ':0' + secsInMin);
+  timerState.interval = setInterval(function(){
+    if(timerState.secsInMin < 10){
+      $('h2').text(timerState.minutes + ':0' + timerState.secsInMin);
     }else{
-      $('h2').text(minutes + ':' + secsInMin);
+      $('h2').text(timerState.minutes + ':' + timerState.secsInMin);
     }
 
-    if (i == totalSeconds){
-      clearInterval(interval);  
+    if (timerState.secondsCounted == timerState.totalSeconds){
+      clearInterval(timerState.interval);  
       return;
     }
 
-    if(secsInMin == 0){
-      secsInMin = 60;
-      minutes--;
+    if(timerState.secsInMin == 0){
+      timerState.secsInMin = 60;
+      timerState.minutes--;
     }
     
-    $('.circle_animation').css('stroke-dashoffset', initialOffset-((i+1)*(initialOffset/totalSeconds)));
-    secsInMin--;
-    i++;
+    $('.circle_animation').css('stroke-dashoffset', ((timerState.secondsCounted+1)*(timerState.initialOffset/timerState.totalSeconds)));
+    timerState.secsInMin--;
+    timerState.secondsCounted++;
   }, 1000);
 }
 
-function stopTimer(){}
+function stopTimer(){
+  if(timerState.interval === null){
+    alert('No timer to stop!');
+    return;
+  }
+
+  clearInterval(timerState.interval);
+  timerState.interval = null;
+
+}
