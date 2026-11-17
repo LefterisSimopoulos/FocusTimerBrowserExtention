@@ -23,9 +23,11 @@ function setTimer(mins){
     alert('Please stop or wait for the current timer to finish!');
     return;
   }
+
+  $('h2').text(mins + ':' + '00');
+  $('.circle_animation').css('stroke-dashoffset', 0);
   timerState.minSelected = mins;
   timerState.secondsCounted = 0;
-  $('h2').text(mins + ':' + '00');
 }
 
 function startTimer(){
@@ -42,21 +44,23 @@ function startTimer(){
   }
 
   timerState.interval = setInterval(function(){
+    if (timerState.secondsCounted == timerState.totalSeconds){
+      clearInterval(timerState.interval); 
+      timerState.interval = null; 
+      return;
+    }
+
     if(timerState.secsInMin < 10){
       $('h2').text(timerState.minutes + ':0' + timerState.secsInMin);
     }else{
       $('h2').text(timerState.minutes + ':' + timerState.secsInMin);
     }
 
-    if (timerState.secondsCounted == timerState.totalSeconds){
-      clearInterval(timerState.interval);  
-      return;
-    }
-
     if(timerState.secsInMin == 0){
       timerState.secsInMin = 60;
       timerState.minutes--;
     }
+
     
     $('.circle_animation').css('stroke-dashoffset', ((timerState.secondsCounted+1)*(timerState.initialOffset/timerState.totalSeconds)));
     timerState.secsInMin--;
